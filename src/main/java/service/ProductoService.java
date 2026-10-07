@@ -65,21 +65,16 @@ public class ProductoService {
      */
     public void agregarProducto(Producto producto) throws ProductoRepository.PersistenciaException {
         Objects.requireNonNull(producto, "El producto no puede ser nulo");
-        // Validaciones básicas de negocio (las más importantes; las detalladas pueden ir en un validador separado)
-        if (producto.getNombre() == null || producto.getNombre().trim().isEmpty()) {
-            throw new IllegalArgumentException("El nombre del producto es obligatorio");
-        }
-        if (producto.getCategoria() == null || producto.getCategoria().trim().isEmpty()) {
-            throw new IllegalArgumentException("La categoría es obligatoria");
-        }
-        if (producto.getCantidad() == null || producto.getCantidad() < 0) {
-            throw new IllegalArgumentException("La cantidad debe ser un número entero mayor o igual a cero");
-        }
-        if (producto.getPrecio() == null || producto.getPrecio().compareTo(java.math.BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("El precio debe ser un número positivo mayor que cero");
-        }
-        if (producto.getEstado() == null) {
-            throw new IllegalArgumentException("Debe seleccionar un estado");
+        // Delegamos la validación a la clase ValidadorProducto
+        String error = ValidadorProducto.validarProducto(
+                producto.getNombre(),
+                producto.getCategoria(),
+                producto.getCantidad() == null ? null : producto.getCantidad().toString(),
+                producto.getPrecio() == null ? null : producto.getPrecio().toString(),
+                producto.getEstado()
+        );
+        if (error != null) {
+            throw new IllegalArgumentException(error);
         }
 
         // Asignamos un ID nuevo (sobrescribiendo cualquiera que tuviera)
@@ -106,21 +101,16 @@ public class ProductoService {
         if (id == null) {
             throw new IllegalArgumentException("El producto debe tener un ID para poder editarlo");
         }
-        // Validaciones similares a agregar (opcional: podríamos reutilizar un método de validación)
-        if (producto.getNombre() == null || producto.getNombre().trim().isEmpty()) {
-            throw new IllegalArgumentException("El nombre del producto es obligatorio");
-        }
-        if (producto.getCategoria() == null || producto.getCategoria().trim().isEmpty()) {
-            throw new IllegalArgumentException("La categoría es obligatoria");
-        }
-        if (producto.getCantidad() == null || producto.getCantidad() < 0) {
-            throw new IllegalArgumentException("La cantidad debe ser un número entero mayor o igual a cero");
-        }
-        if (producto.getPrecio() == null || producto.getPrecio().compareTo(java.math.BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("El precio debe ser un número positivo mayor que cero");
-        }
-        if (producto.getEstado() == null) {
-            throw new IllegalArgumentException("Debe seleccionar un estado");
+        // Validamos usando ValidadorProducto
+        String error = ValidadorProducto.validarProducto(
+                producto.getNombre(),
+                producto.getCategoria(),
+                producto.getCantidad() == null ? null : producto.getCantidad().toString(),
+                producto.getPrecio() == null ? null : producto.getPrecio().toString(),
+                producto.getEstado()
+        );
+        if (error != null) {
+            throw new IllegalArgumentException(error);
         }
 
         List<Producto> productos = repositorio.cargarProductos();
